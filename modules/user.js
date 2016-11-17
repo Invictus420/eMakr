@@ -11,4 +11,5 @@ var godSchema = new Schema({
     events: [{type: Schema.Types.ObjectId, ref: 'Event'}]
 });
 
+
 module.exports = mongoose.model('God', godSchema);

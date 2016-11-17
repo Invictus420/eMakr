@@ -12,6 +12,8 @@ var eventSchema = new Schema({
     joinCode: String,
     location: {type: String, coordinates:[]},
     proximity: Number,
+    public : Boolean,
+    creator :{type: Schema.Types.ObjectId, ref: 'God'},
     participants: [{type: Schema.Types.ObjectId, ref: 'Participant'}]
 });
 var Event = mongoose.model('Event', eventSchema);
