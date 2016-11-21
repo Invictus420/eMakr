@@ -42,7 +42,7 @@ var getEvents = function (req,res) {
                 res.json(events);
             }
         })
-}
+};
 
 var getUserEvents = function(req, res){
     god.findById(req.params.id)
@@ -61,23 +61,6 @@ var getUserEvents = function(req, res){
                 })
 
             }
-    });
-};
-
-var getEventArray = function(idArray){
-    async.map(idArray, function(currentValue){
-        Event.findById(new ObjectId(currentValue))
-            .exec(function(err, event){
-                if(err){
-                    console.log(err);
-                } else{
-                    return event;
-
-                }
-        })
-    }, function (err ,res) {
-        console.log(res);
-        return res;
     });
 };
 
@@ -117,7 +100,16 @@ var deleteEvent = function (req,res) {
         }
         else{
             console.log(event);
-            res.send("bye! mutter fukker, i always hated you. i am truely happy now.")
+            god.findOneAndUpdate({_id: req.body.userid},
+                {$pull:{'events': new ObjectId(req.params.id)}},{safe:true},
+                function(err, user){
+                    if(err){
+                        res.send(err)
+                    } else{
+                        console.log("deleted from user");
+                    }
+            });
+            res.send("The event committed seppuku in your honour")
         }
     });
 };
@@ -145,6 +137,67 @@ var addActivity = function (req,res) {
     })
 };
 
+var getActivity = function(req, res){
+    Activity.findById(req.params.id)
+        .exec(function(err, activity){
+            if(err){
+                res.send(err);
+            }
+            else {
+                res.json(activity);
+            }
+        });
+};
+
+var getActivities = function (req,res) {
+    Activity.find({})
+        .exec(function (err, activities) {
+            if(err){
+                res.send(err);
+            }else {
+                res.json(activities);
+            }
+        })
+};
+
+var editActivity = function (req,res) {
+    Activity.findOneAndUpdate({
+            _id: req.params.id
+        }, req.body
+        ,{new: true}
+        , function(err, activity){
+            if(err){
+                res.send(err);
+            }
+            else {
+                res.send(activity);
+            }
+        });
+};
+
+var deleteActivity = function (req,res) {
+    Activity.findOneAndRemove({
+        _id: req.params.id
+    }, function (err, activity ) {
+        if(err){
+            res.send(err);
+        }
+        else{
+            console.log(activity);
+            god.findOneAndUpdate({_id: req.body.eventid},
+                {$pull:{'activities': new ObjectId(req.params.id)}},{safe:true},
+                function(err, event){
+                    if(err){
+                        res.send(err)
+                    } else{
+                        console.log("deleted from user");
+                    }
+                });
+            res.send("The event committed seppuku in your honour")
+        }
+    });
+};
+
 var newGod = function(req, res){
 
     var user = new god();
@@ -161,6 +214,34 @@ var newGod = function(req, res){
     });
 
 };
+
+var login = function(req, res){
+    god.findOne({username:req.body.username})
+        .exec(function(err, god){
+            console.log(err);
+            if(god === null){
+                res.send("You don't exist bro")
+            } else{
+                console.log(god);
+                if(god.password === req.body.password){
+                    res.send("Success")
+                } else{
+                    res.send("That ain't your password, i'm calling the cops")
+                }
+            }
+        })
+}
+
+var getGods = function (req,res) {
+    god.find({})
+        .exec(function (err, gods) {
+            if(err){
+                res.send(err);
+            }else {
+                res.json(gods);
+            }
+        })
+}
 
 var editGod = function(req, res){
     god.findOneAndUpdate({
@@ -188,7 +269,12 @@ module.exports = {
     editEvent : editEvent,
     deleteEvent : deleteEvent,
     addActivity : addActivity,
+    getActivity : getActivity,
+    getActivities : getActivities,
+    editActivity : editActivity,
     newGod : newGod,
     editGod : editGod,
-    getUserEvents : getUserEvents
+    getUserEvents : getUserEvents,
+    getGods : getGods,
+    login : login
 };

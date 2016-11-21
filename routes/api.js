@@ -20,9 +20,13 @@ router.get('/event/:id', function(req, res, next) {
     controller.getEvent(req,res);
 });
 
+router.get('/users', function(req, res, next){
+    controller.getGods(req, res);
+});
+
 router.get('/user/:id/events', function(req, res, next){
     controller.getUserEvents(req, res);
-})
+});
 
 router.put('/event/:id', function(req, res, next) {
     controller.editEvent(req,res);
@@ -33,15 +37,23 @@ router.delete('/event/:id', function(req, res, next) {
 });
 
 router.post('/event/:id/activity', function (req, res, next) {
-    controller.addActivity(req,res)
+    controller.addActivity(req,res);
+});
+
+router.get('/activity/:id', function(req, res, next){
+    controller.getActivity(req, res);
 });
 
 router.post('/user/new', function(req, res, next){
-    controller.newGod(req, res)
+    controller.newGod(req, res);
+});
+
+router.post('/login', function(req, res, next){
+    controller.login(req, res);
 });
 
 router.put('/user/:id', function(req, res, next){
-    controller.editGod(req, res)
-})
+    controller.editGod(req, res);
+});
 
 module.exports = router;

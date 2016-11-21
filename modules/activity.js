@@ -7,6 +7,7 @@ var Schema = mongoose.Schema;
 var activitySchema = new Schema({
     name: String,
     description: String,
+    creator :{type: Schema.Types.ObjectId, ref: 'Event'},
     location: {type: String, coordinates:[]},
     proximity: Number,
     type: String,
