@@ -34,7 +34,7 @@ var newEvent = function (req, res) {
 };
 
 var getEvents = function (req,res) {
-    Event.find({})
+    Event.find({public : true})
         .exec(function (err, events) {
             if(err){
                 res.send(err);
@@ -74,6 +74,18 @@ var getEvent = function (req,res) {
                 res.json(event);
             }
     });
+};
+
+var getSEvent = function (id) {
+    Event.findById(id)
+        .exec(function(err, event){
+            if(err){
+                return err;
+            }
+            else {
+                return event;
+            }
+        });
 };
 
 var editEvent = function (req,res) {
@@ -149,16 +161,6 @@ var getActivity = function(req, res){
         });
 };
 
-var getActivities = function (req,res) {
-    Activity.find({})
-        .exec(function (err, activities) {
-            if(err){
-                res.send(err);
-            }else {
-                res.json(activities);
-            }
-        })
-};
 
 var editActivity = function (req,res) {
     Activity.findOneAndUpdate({
@@ -184,7 +186,7 @@ var deleteActivity = function (req,res) {
         }
         else{
             console.log(activity);
-            god.findOneAndUpdate({_id: req.body.eventid},
+            Event.findOneAndUpdate({_id: req.body.eventid},
                 {$pull:{'activities': new ObjectId(req.params.id)}},{safe:true},
                 function(err, event){
                     if(err){
@@ -200,19 +202,21 @@ var deleteActivity = function (req,res) {
 
 var newGod = function(req, res){
 
-    var user = new god();
-    user.name = req.body.name;
-    user.username = req.body.username;
-    user.password = req.body.password;
-
-    user.save(function(err, user){
-        if(err){
-            res.send(err)
-        } else{
-            res.json(user);
-        }
-    });
-
+    if (!req.body.name || !req.body.password) {
+        res.json({success: false, msg: 'Please pass name and password.'});
+    } else {
+        var newUser = new god({
+            username: req.body.username,
+            password: req.body.password
+        });
+        // save the user
+        newUser.save(function(err) {
+            if (err) {
+                return res.json({success: false, msg: 'Username already exists.'});
+            }
+            res.json({success: true, msg: 'Successful created new user.'});
+        });
+    }
 };
 
 var login = function(req, res){
@@ -262,19 +266,34 @@ var deleteGod = function(req, res){
 
 };
 
+var getTokenBlackGuy = function (headers) {
+    if (headers && headers.authorization) {
+        var parted = headers.authorization.split(' ');
+        if (parted.length === 2) {
+            return parted[1];
+        } else {
+            return null;
+        }
+    } else {
+        return null;
+    }
+};
+
 module.exports = {
     newEvent : newEvent,
     getEvent : getEvent,
+    getSEvent : getSEvent,
     getEvents : getEvents,
     editEvent : editEvent,
     deleteEvent : deleteEvent,
     addActivity : addActivity,
     getActivity : getActivity,
-    getActivities : getActivities,
     editActivity : editActivity,
+    deleteActivity : deleteActivity,
     newGod : newGod,
     editGod : editGod,
     getUserEvents : getUserEvents,
     getGods : getGods,
-    login : login
+    login : login,
+    getToken : getTokenBlackGuy
 };

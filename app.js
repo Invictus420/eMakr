@@ -4,6 +4,15 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var passport = require("passport");
+var passportConfig = require("./config/passport");
+passportConfig(passport);
+var jwt       = require('jwt-simple');
+var morgan      = require('morgan');
+var mongoose    = require('mongoose');
+var config      = require('./config/database');
+
+
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -11,6 +20,8 @@ var api = require('./routes/api');
 
 
 var app = express();
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -23,6 +34,20 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(morgan('dev'));
+
+// Use the passport package in our application
+app.use(passport.initialize());
+
+app.use('/api', function(req, res, next) {
+  passport.authenticate('jwt', {session: false}, function(err, user, info) {
+    if (err) { res.status(403).json({mesage:"Token could not be authenticated",fullError: err}) }
+    if (user) { return next(); }
+    return res.status(403).json({mesage: "Token could not be authenticated", fullError: info});
+  })(req, res, next);
+});
+
 
 app.use('/', routes);
 app.use('/users', users);
