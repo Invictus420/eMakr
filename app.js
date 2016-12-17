@@ -5,12 +5,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var passport = require("passport");
-var passportConfig = require("./config/passport");
-passportConfig(passport);
-var jwt       = require('jwt-simple');
-var morgan      = require('morgan');
-var mongoose    = require('mongoose');
-var config      = require('./config/database');
+var jwt = require('jwt-simple');
+var morgan = require('morgan');
+var mongoose = require('mongoose');
 
 
 
@@ -34,11 +31,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-app.use(morgan('dev'));
-
-// Use the passport package in our application
-app.use(passport.initialize());
+var passportConfig = require("./config/passport");
+passportConfig(passport);
 
 app.use('/api', function(req, res, next) {
   passport.authenticate('jwt', {session: false}, function(err, user, info) {
@@ -48,6 +42,10 @@ app.use('/api', function(req, res, next) {
   })(req, res, next);
 });
 
+app.use(morgan('dev'));
+
+// Use the passport package in our application
+app.use(passport.initialize());
 
 app.use('/', routes);
 app.use('/users', users);

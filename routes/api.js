@@ -5,7 +5,7 @@ var express = require('express');
 var router = express.Router();
 var controller = require('../modules/dataController');
 var god = require('../modules/user');
-var jwtConfig = require("../config/jwtConfig").jwtConfig;
+var jwtConfig = require("../config/jwtconfig").jwtConfig;
 
 
 var ObjectId = (require('mongoose').Types.ObjectId);
